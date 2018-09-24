@@ -1,0 +1,32 @@
+# Local bins
+_LOCAL_BIN_PATH="$HOME/local/bin/:$HOME/.local/bin"
+
+# Ruby bins in home
+_RUBIN_PATH="$HOME/.gem/ruby/1.9.1/bin"
+
+# Colors in gcc
+_COLOR_GCC_PATH="/usr/lib/colorgcc/bin"
+
+# Cljs
+_CLOJURE_PATH="/opt/clojurescript/bin/"
+
+# Dart
+_DART_PATH="$HOME/.pub-cache/bin:/opt/flutter/bin/cache/dart-sdk/bin/"
+
+# Node
+
+# NPM packages in homedir
+NPM_PACKAGES="$HOME/.npm-packages"
+# Tell our environment about user-installed node tools
+export _NPM_BIN="$NPM_PACKAGES/bin"
+# Unset manpath so we can inherit from /etc/manpath via the `manpath` command
+unset MANPATH  # delete if you already modified MANPATH elsewhere in your configuration
+export MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
+# Tell Node about these packages
+export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
+
+# Haskell Paths
+export _HASKELL_PATH="$HOME/.cabal/bin"
+
+# Set new path
+export PATH="$_LOCAL_BIN_PATH:$_RUBIN_PATH:$_COLOR_GCC_PATH:$_COLOR_GCC_PATH:$_DART_PATH:$_NPM_BIN:$PATH"

@@ -1,0 +1,36 @@
+#if [[ -n $TMUX ]]; then
+#  typeset -A latest_seen_tmuxenv
+#  function precmd_tmux {
+#    local exitstatus=$?
+#    local e newenv
+#    local -a shared overriden
+#    e="$(tmux show-environment TMUX_ZSH_SHARED 2>/dev/null)"
+#    [[ $? -ne 0 ]] && return $exitstatus
+#    e="${e#TMUX_ZSH_SHARED=}"
+#    shared=($=e)
+#    for e in ${shared[@]}; do
+#      if [[ -n "${(P)e}" && "${(P)e}" != "${latest_seen_tmuxenv[$e]}" ]]; then
+#        overriden+=($e)
+#        tmux set-environment "$e" "${(P)e}"
+#        latest_seen_tmuxenv[$e]="${(P)e}"
+#      else
+#        newenv="$(tmux show-environment $e 2>/dev/null)"
+#        if [[ $? -ne 0 ]]; then
+#          if [[ -n "${latest_seen_tmuxenv[$e]}" ]]; then
+#            unset $e
+#          fi
+#          unset latest_seen_tmuxenv[$e]
+#          continue
+#        fi
+#        newenv="${newenv#$e=}"
+#        if [[ "$newenv" != "${latest_seen_tmuxenv[$e]}" ]]; then
+#          latest_seen_tmuxenv[$e]="$newenv"
+#          typeset -g $e="$newenv"
+#        fi
+#      fi
+#    done
+#    return $exitstatus
+#  }
+#
+#  precmd_functions+=(precmd_tmux)
+#fi

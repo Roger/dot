@@ -1,0 +1,12 @@
+# zsh dir
+ZDIR_PATH=$HOME/.zsh/
+
+# highlighting SLOW
+#source $ZDIR_PATH/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
+#ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
+
+# gitflow
+# source $ZDIR_PATH/plugins/git-flow-completion/git-flow-completion.zsh
+
+# bracket mode paste
+# source $ZDIR_PATH/plugins/safe-paste.plugin.zsh

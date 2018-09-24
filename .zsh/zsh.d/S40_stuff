@@ -1,0 +1,10 @@
+export PAGER=less
+export EDITOR=nvim
+export SVN_EDITOR=nvim
+
+# python virtual envs
+export WORKON_HOME=$HOME/.virtualenvs
+# export VIRTUALENVWRAPPER_VIRTUALENV=virtualenv-2.7
+
+# Remove stop output in shell
+stty stop ''

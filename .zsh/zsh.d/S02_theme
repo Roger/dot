@@ -1,0 +1,6 @@
+autoload promptinit; promptinit
+if [ $USER = root ]; then
+    prompt roger white black red
+else
+    prompt roger white black green
+fi
