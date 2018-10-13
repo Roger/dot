@@ -9,4 +9,4 @@ ZDIR_PATH=$HOME/.zsh/
 # source $ZDIR_PATH/plugins/git-flow-completion/git-flow-completion.zsh
 
 # bracket mode paste
-# source $ZDIR_PATH/plugins/safe-paste.plugin.zsh
+source $ZDIR_PATH/plugins/safe-paste.plugin.zsh

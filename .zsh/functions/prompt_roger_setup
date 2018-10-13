@@ -1,4 +1,5 @@
 # roger prompt theme
+# base on elite from zsh
 
 function prompt-roger-preexec {
   setopt localoptions noxtrace noksharrays
