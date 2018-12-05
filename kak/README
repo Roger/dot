@@ -1,0 +1,13 @@
+# Dependencies
+ripgrep for searching
+python lang server(pyls)
+rustup(for rust lang server)
+
+# How to install
+copy this directory to ~/.config/kak/
+
+# Install plug.kak installed https://github.com/andreyorst/plug.kak ie.
+git clone https://github.com/andreyorst/plug.kak.git ~/.config/kak/plugins/plug.kak
+
+# Link the default configuration to autoload ie.
+ln -s /usr/share/kak/autoload ~/.config/kak/autoload/default

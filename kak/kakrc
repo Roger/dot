@@ -1,0 +1,83 @@
+source ~/.config/kak/plugins/plug.kak/rc/plug.kak
+colorscheme lucius-roger
+
+# expand tabs
+plug "andreyorst/smarttab.kak" %{
+    set-option global softtabstop 4
+}
+
+plug "andreyorst/powerline.kak"  %{
+    hook -once global WinCreate .* %{
+        powerline-theme tomorrow-night
+        powerline-separator triangle
+        powerline-toggle session
+        powerline-toggle client
+    }
+}
+
+# use ripgrep for greping
+set global grepcmd 'rg --column'
+
+# Commend line
+map global normal '#' :comment-line<ret>
+map global user p '!xclip -selection clipboard -o<ret>'
+
+hook global NormalIdle .* %{
+    git update-diff
+}
+
+hook global InsertIdle .* %{
+    git update-diff
+}
+hook -once global WinCreate .* %{
+    git show-diff
+}
+
+
+# lang server
+# example of kak-lsp configuration with plug.kak
+# 'do %{cargo build --release}' will be executed after every successful update
+plug "ul/kak-lsp" noload do %{cargo build --release} %{
+    hook global WinSetOption filetype=(c|cpp|rust|python) %{
+        eval %sh{ ~/.config/kak/plugins/kak-lsp/target/release/kak-lsp --kakoune -s $kak_session }
+        lsp-auto-hover-enable
+        # set-option global lsp_hover_anchor true
+    }
+}
+
+plug "Delapouite/kakoune-buffers" %{
+    hook global WinDisplay .* info-buffers
+
+    # Suggested aliases
+
+    alias global bd delete-buffer
+    alias global bf buffer-first
+    alias global bl buffer-last
+    alias global bo buffer-only
+    alias global bo! buffer-only-force
+
+    # ciao macros
+    map global normal ^ q
+    map global normal <a-^> Q
+
+    map global normal q b
+    map global normal Q B
+    map global normal <a-q> <a-b>
+    map global normal <a-Q> <a-B>
+    map global normal b ':enter-buffers-mode<ret>'              -docstring 'buffers…'
+    map global normal B ':enter-user-mode -lock buffers<ret>'   -docstring 'buffers (lock)…'
+}
+
+plug "https://gitlab.com/Screwtapello/kakoune-cargo.git"
+
+# add brackets highlighting
+hook global WinCreate .* %{add-highlighter window/ show-matching}
+
+
+# Git commit wrap
+hook global WinSetOption filetype=git-commit %{
+    # wrap to 70 lines
+    add-highlighter buffer/ wrap -word -width 72
+    # set window autowrap_column 72
+    # autowrap-enable
+}
