@@ -1,10 +1,18 @@
 source ~/.config/kak/plugins/plug.kak/rc/plug.kak
+# call plug.kak with `plug' command
+plug "andreyorst/plug.kak" noload config %{}
+
+# Eval/Process
+source ~/.config/kak/scripts/single-process-pipe.kak
+
 colorscheme lucius-roger
 
 # expand tabs
 plug "andreyorst/smarttab.kak" %{
     set-option global softtabstop 4
 }
+
+set-option global tabstop 4
 
 plug "andreyorst/powerline.kak"  %{
     hook -once global WinCreate .* %{
@@ -20,30 +28,80 @@ set global grepcmd 'rg --column'
 
 # Commend line
 map global normal '#' :comment-line<ret>
-map global user p '!xclip -selection clipboard -o<ret>'
+map global user p '!xclip -selection clipboard -o<ret>' -docstring "Paste from clipboard"
 
 hook global NormalIdle .* %{
-    git update-diff
+    evaluate-commands %sh{ git rev-parse --is-inside-work-tree &> /dev/null && echo "git update-diff" }
 }
 
 hook global InsertIdle .* %{
-    git update-diff
+    evaluate-commands %sh{ git rev-parse --is-inside-work-tree &> /dev/null && echo "git update-diff" }
 }
 hook -once global WinCreate .* %{
-    git show-diff
+    evaluate-commands %sh{ git rev-parse --is-inside-work-tree &> /dev/null && echo "git show-diff" }
 }
 
 
 # lang server
-# example of kak-lsp configuration with plug.kak
-# 'do %{cargo build --release}' will be executed after every successful update
-plug "ul/kak-lsp" noload do %{cargo build --release} %{
-    hook global WinSetOption filetype=(c|cpp|rust|python) %{
-        eval %sh{ ~/.config/kak/plugins/kak-lsp/target/release/kak-lsp --kakoune -s $kak_session }
+# # example of kak-lsp configuration with plug.kak
+# # 'do %{cargo build --release}' will be executed after every successful update
+# plug "ul/kak-lsp" noload do %{cargo build --release} %{
+#     eval %sh{ ~/.config/kak/plugins/kak-lsp/target/release/kak-lsp --kakoune -s $kak_session }
+#     hook global WinSetOption filetype=(c|cpp|rust|python) %{
+#         lsp-enable
+#         lsp-auto-hover-enable
+#         # set-option global lsp_hover_anchor true
+#     }
+# }
+
+# use package from arch
+source /usr/share/kak-lsp/rc/lsp.kak
+# plug "ul/kak-lsp" tag "v6.1.0" do %{
+#     cargo build --release --locked
+#     cargo install --force
+# } %{
+
+    # nop %sh{ (kak-lsp -s $kak_session -vvv ) > /tmp/kak-lsp.log 2>&1 < /dev/null & }
+    # lsp-enable
+
+    set-option global lsp_diagnostic_line_error_sign '║'
+    set-option global lsp_diagnostic_line_warning_sign '┊'
+
+    define-command ne -docstring 'go to next error/warning from lsp' %{ lsp-find-error --include-warnings }
+    define-command pe -docstring 'go to previous error/warning from lsp' %{ lsp-find-error --previous --include-warnings }
+    define-command ee -docstring 'go to current error/warning from lsp' %{ lsp-find-error --include-warnings; lsp-find-error --previous --include-warnings }
+
+    map global normal <a-s> ':enter-user-mode lsp<ret>'              -docstring 'enter lsp mode'
+
+    # # define-command lsp-restart -docstring 'restart lsp server' %{ lsp-stop; lsp-start }
+
+    hook global WinSetOption filetype=(c|cpp|rust|python|erlang|go) %{
+        set-option window lsp_auto_highlight_references true
+        set-option window lsp_hover_anchor false
         lsp-auto-hover-enable
-        # set-option global lsp_hover_anchor true
+        lsp-enable-window
     }
-}
+
+    # Go lang server it's kinda broken..
+    hook global WinSetOption filetype=(go) %{
+        set-option window lsp_auto_highlight_references false
+        set-option window lsp_hover_anchor false
+        lsp-auto-hover-disable
+    }
+
+    hook global WinSetOption filetype=(rust) %{
+        set-option window lsp_server_configuration rust.clippy_preference="on"
+        hook window BufWritePre .* %{
+            evaluate-commands %sh{
+                test -f rustfmt.toml && printf lsp-formatting-sync
+            }
+        }
+    }
+
+    hook global KakEnd .* lsp-exit
+# }
+
+
 
 plug "Delapouite/kakoune-buffers" %{
     hook global WinDisplay .* info-buffers
@@ -63,10 +121,17 @@ plug "Delapouite/kakoune-buffers" %{
     map global normal q b
     map global normal Q B
     map global normal <a-q> <a-b>
-    map global normal <a-Q> <a-B>
+    map global normal <a-q> <a-b>
     map global normal b ':enter-buffers-mode<ret>'              -docstring 'buffers…'
     map global normal B ':enter-user-mode -lock buffers<ret>'   -docstring 'buffers (lock)…'
 }
+
+# plug "occivink/kakoune-phantom-selection" %{
+#     map global user f ": phantom-sel-add-selection<ret>" -docstring "Add to phantom"
+#     map global user F ": phantom-sel-select-all; phantom-sel-clear<ret>" -docstring "Clear phantom"
+#     map global user g ": phantom-sel-iterate-next<ret>" -docstring "Next phantom"
+#     map global user G ": phantom-sel-iterate-prev<ret>" -docstring "Prev phantom"
+# }
 
 plug "https://gitlab.com/Screwtapello/kakoune-cargo.git"
 
@@ -80,4 +145,16 @@ hook global WinSetOption filetype=git-commit %{
     add-highlighter buffer/ wrap -word -width 72
     # set window autowrap_column 72
     # autowrap-enable
+}
+
+hook global BufCreate .*\.erl %{
+    set-option buffer filetype erlang
+}
+
+
+plug "andreyorst/fzf.kak" %{
+  # set-option global fzf_implementation 'sk'
+  set-option global fzf_file_command 'rg'
+  set-option global fzf_highlight_cmd 'bat'
+  map global normal <c-p> ': fzf-mode<ret>'
 }
